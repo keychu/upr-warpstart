@@ -35,4 +35,4 @@ Finding the new offsets dynamically like this means that, for example, someone c
 
 ---
 
-You can find the original Universal Pokemon Randomizer here: https://wwww.github.com/Dabomstew/universal-pokemon-randomizer
+You can find the original Universal Pokemon Randomizer here: https://www.github.com/Dabomstew/universal-pokemon-randomizer
