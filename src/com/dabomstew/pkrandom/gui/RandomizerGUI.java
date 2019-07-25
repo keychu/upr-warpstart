@@ -64,7 +64,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.xml.bind.DatatypeConverter;
 
 import com.dabomstew.pkrandom.CustomNamesSet;
 import com.dabomstew.pkrandom.FileFunctions;
@@ -680,11 +679,13 @@ public class RandomizerGUI extends javax.swing.JFrame {
     private void initialFormState() {
         // Disable all rom components
         this.goRemoveTradeEvosCheckBox.setEnabled(false);
+        this.goRemoveHappinessEvosCheckBox.setEnabled(false);
         this.goUpdateMovesCheckBox.setEnabled(false);
         this.goUpdateMovesLegacyCheckBox.setEnabled(false);
         this.goCondenseEvosCheckBox.setEnabled(false);
 
         this.goRemoveTradeEvosCheckBox.setSelected(false);
+        this.goRemoveHappinessEvosCheckBox.setEnabled(false);
         this.goUpdateMovesCheckBox.setSelected(false);
         this.goUpdateMovesLegacyCheckBox.setSelected(false);
         this.goCondenseEvosCheckBox.setSelected(false);
@@ -938,6 +939,8 @@ public class RandomizerGUI extends javax.swing.JFrame {
         this.peSameTypeCB.setEnabled(false);
         this.peSimilarStrengthCB.setSelected(false);
         this.peSimilarStrengthCB.setEnabled(false);
+        this.peSimilarStrengthBstCB.setSelected(false);
+        this.peSimilarStrengthBstCB.setEnabled(false);
 
         for (JCheckBox cb : tweakCheckboxes) {
             cb.setVisible(true);
@@ -1044,6 +1047,8 @@ public class RandomizerGUI extends javax.swing.JFrame {
             this.goUpdateMovesLegacyCheckBox.setVisible(!(romHandler instanceof Gen5RomHandler));
             this.goRemoveTradeEvosCheckBox.setSelected(false);
             this.goRemoveTradeEvosCheckBox.setEnabled(true);
+            this.goRemoveHappinessEvosCheckBox.setSelected(false);
+            this.goRemoveHappinessEvosCheckBox.setEnabled(!(romHandler instanceof Gen1RomHandler));
             this.goCondenseEvosCheckBox.setSelected(false);
             this.goCondenseEvosCheckBox.setEnabled(true);
             this.raceModeCB.setSelected(false);
@@ -1552,6 +1557,13 @@ public class RandomizerGUI extends javax.swing.JFrame {
             this.fiBanBadCB.setSelected(false);
         }
 
+        if(this.peSimilarStrengthCB.isSelected()){
+            this.peSimilarStrengthBstCB.setEnabled(true);
+        } else{
+            this.peSimilarStrengthBstCB.setEnabled(false);
+            this.peSimilarStrengthBstCB.setSelected(false);
+        }
+
         this.peForceChangeCB.setEnabled(this.peRandomRB.isSelected());
         this.peThreeStagesCB.setEnabled(this.peRandomRB.isSelected());
         this.peSameTypeCB.setEnabled(this.peRandomRB.isSelected());
@@ -1623,7 +1635,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                 throw e;
             }
         }
-        byte[] data = DatatypeConverter.parseBase64Binary(config);
+        byte[] data = Utils.base64ToBytes(config);
 
         int nameLength = data[Settings.LENGTH_OF_SETTINGS_DATA] & 0xFF;
         if (data.length != Settings.LENGTH_OF_SETTINGS_DATA + 9 + nameLength) {
@@ -1635,6 +1647,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
 
     private void restoreStateFromSettings(Settings settings) {
         this.goRemoveTradeEvosCheckBox.setSelected(settings.isChangeImpossibleEvolutions());
+        this.goRemoveHappinessEvosCheckBox.setSelected(settings.isChangeHappinessEvolutions());
         this.goUpdateMovesCheckBox.setSelected(settings.isUpdateMoves());
         this.goUpdateMovesLegacyCheckBox.setSelected(settings.isUpdateMovesLegacy());
         this.tnRandomizeCB.setSelected(settings.isRandomizeTrainerNames());
@@ -1678,6 +1691,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
         this.peUnchangedRB.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.UNCHANGED);
         this.peRandomRB.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM);
         this.peSimilarStrengthCB.setSelected(settings.isEvosSimilarStrength());
+        this.peSimilarStrengthBstCB.setSelected(settings.isEvosSimilarStrengthBST());
         this.peSameTypeCB.setSelected(settings.isEvosSameTyping());
         this.peThreeStagesCB.setSelected(settings.isEvosMaxThreeStages());
         this.peForceChangeCB.setSelected(settings.isEvosForceChange());
@@ -1799,6 +1813,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
         Settings settings = new Settings();
         settings.setRomName(this.romHandler.getROMName());
         settings.setChangeImpossibleEvolutions(goRemoveTradeEvosCheckBox.isSelected());
+        settings.setChangeHappinessEvolutions(goRemoveHappinessEvosCheckBox.isSelected()); //ADDED
         settings.setUpdateMoves(goUpdateMovesCheckBox.isSelected());
         settings.setUpdateMovesLegacy(goUpdateMovesLegacyCheckBox.isSelected());
         settings.setRandomizeTrainerNames(tnRandomizeCB.isSelected());
@@ -1835,6 +1850,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
 
         settings.setEvolutionsMod(peUnchangedRB.isSelected(), peRandomRB.isSelected());
         settings.setEvosSimilarStrength(peSimilarStrengthCB.isSelected());
+        settings.setEvosSimilarStrengthBST(peSimilarStrengthBstCB.isSelected()); //ADDED
         settings.setEvosSameTyping(peSameTypeCB.isSelected());
         settings.setEvosMaxThreeStages(peThreeStagesCB.isSelected());
         settings.setEvosForceChange(peForceChangeCB.isSelected());
@@ -2244,6 +2260,20 @@ public class RandomizerGUI extends javax.swing.JFrame {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, bundle.getString("RandomizerGUI.settingsLoadFailed"));
             }
+
+            try{
+                //Try to load JSON file for new, WarpStart-only settings
+                String jsonName = fh.getAbsolutePath().substring(0, fh.getAbsolutePath().length() - 4) + "json";
+                //System.out.println(jsonName);
+                FileInputStream json = new FileInputStream(jsonName);
+                //String jsonTxt = json.toString();
+
+                json.close();
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, bundle.getString("RandomizerGUI.invalidSettingsFile"));
+            } catch (IOException ex) {
+                //JOptionPane.showMessageDialog(this, bundle.getString("RandomizerGUI.settingsLoadFailed"));
+            }
         }
     }// GEN-LAST:event_loadQSButtonActionPerformed
 
@@ -2622,6 +2652,8 @@ public class RandomizerGUI extends javax.swing.JFrame {
         peForceChangeCB = new javax.swing.JCheckBox();
         goRemoveTradeEvosCheckBox = new javax.swing.JCheckBox();
         goCondenseEvosCheckBox = new javax.swing.JCheckBox();
+        goRemoveHappinessEvosCheckBox = new javax.swing.JCheckBox();
+        peSimilarStrengthBstCB = new javax.swing.JCheckBox();
         startersInnerPanel = new javax.swing.JPanel();
         starterPokemonPanel = new javax.swing.JPanel();
         spUnchangedRB = new javax.swing.JRadioButton();
@@ -3000,7 +3032,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                     .addComponent(pbsChangesShuffleRB)
                     .addComponent(pbsChangesUnchangedRB)
                     .addComponent(pbsChangesRandomRB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 3, Short.MAX_VALUE)
                 .addGroup(baseStatsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pbsStandardEXPCurvesCB)
                     .addComponent(pbsFollowEvolutionsCB)
@@ -3127,6 +3159,11 @@ public class RandomizerGUI extends javax.swing.JFrame {
 
         peSimilarStrengthCB.setText(bundle.getString("RandomizerGUI.peSimilarStrengthCB.text")); // NOI18N
         peSimilarStrengthCB.setToolTipText(bundle.getString("RandomizerGUI.peSimilarStrengthCB.toolTipText")); // NOI18N
+        peSimilarStrengthCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                peSimilarStrengthCBActionPerformed(evt);
+            }
+        });
 
         peSameTypeCB.setText(bundle.getString("RandomizerGUI.peSameTypeCB.text")); // NOI18N
         peSameTypeCB.setToolTipText(bundle.getString("RandomizerGUI.peSameTypeCB.toolTipText")); // NOI18N
@@ -3148,6 +3185,13 @@ public class RandomizerGUI extends javax.swing.JFrame {
             }
         });
 
+        goRemoveHappinessEvosCheckBox.setText(bundle.getString("RandomizerGUI.goRemoveHappinessEvosCheckBox.text")); // NOI18N
+
+        peSimilarStrengthBstCB.setText(bundle.getString("RandomizerGUI.text")); // NOI18N
+        peSimilarStrengthBstCB.setToolTipText(bundle.getString("RandomizerGUI.toolTipText")); // NOI18N
+        peSimilarStrengthBstCB.setEnabled(false);
+        peSimilarStrengthBstCB.setName(""); // NOI18N
+
         javax.swing.GroupLayout pokemonEvolutionsPanelLayout = new javax.swing.GroupLayout(pokemonEvolutionsPanel);
         pokemonEvolutionsPanel.setLayout(pokemonEvolutionsPanelLayout);
         pokemonEvolutionsPanelLayout.setHorizontalGroup(
@@ -3160,15 +3204,20 @@ public class RandomizerGUI extends javax.swing.JFrame {
                 .addGap(83, 83, 83)
                 .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(peForceChangeCB)
-                    .addComponent(peThreeStagesCB)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pokemonEvolutionsPanelLayout.createSequentialGroup()
                         .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(peSimilarStrengthCB)
-                            .addComponent(peSameTypeCB))
+                            .addGroup(pokemonEvolutionsPanelLayout.createSequentialGroup()
+                                .addComponent(peSimilarStrengthCB)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(peSimilarStrengthBstCB))
+                            .addComponent(peSameTypeCB)
+                            .addComponent(peThreeStagesCB))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(goCondenseEvosCheckBox)
-                            .addComponent(goRemoveTradeEvosCheckBox))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(goCondenseEvosCheckBox)
+                                .addComponent(goRemoveTradeEvosCheckBox))
+                            .addComponent(goRemoveHappinessEvosCheckBox, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
         );
         pokemonEvolutionsPanelLayout.setVerticalGroup(
@@ -3178,17 +3227,20 @@ public class RandomizerGUI extends javax.swing.JFrame {
                 .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(peUnchangedRB)
                     .addComponent(peSimilarStrengthCB)
-                    .addComponent(goRemoveTradeEvosCheckBox))
+                    .addComponent(goRemoveTradeEvosCheckBox)
+                    .addComponent(peSimilarStrengthBstCB))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(peRandomRB)
                     .addComponent(peSameTypeCB)
-                    .addComponent(goCondenseEvosCheckBox))
+                    .addComponent(goCondenseEvosCheckBox)
+                    .addComponent(peRandomRB))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(peThreeStagesCB)
+                .addGroup(pokemonEvolutionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(peThreeStagesCB)
+                    .addComponent(goRemoveHappinessEvosCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(peForceChangeCB)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout pokeTraitsPanelLayout = new javax.swing.GroupLayout(pokeTraitsPanel);
@@ -3465,7 +3517,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                 .addComponent(staticPokemonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(inGameTradesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         randomizerOptionsPane.addTab(bundle.getString("RandomizerGUI.startersInnerPanel.TabConstraints.tabTitle"), startersInnerPanel); // NOI18N
@@ -4389,7 +4441,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(moveTutorsPanelLayout.createSequentialGroup()
                         .addComponent(mtMovesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(mtCompatPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27))))
         );
@@ -4624,6 +4676,10 @@ public class RandomizerGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void peSimilarStrengthCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_peSimilarStrengthCBActionPerformed
+        this.enableOrDisableSubControls();
+    }//GEN-LAST:event_peSimilarStrengthCBActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel abilitiesPanel;
     private javax.swing.JPanel baseStatsPanel;
@@ -4639,6 +4695,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
     private javax.swing.JLabel gameMascotLabel;
     private javax.swing.JPanel generalOptionsPanel;
     private javax.swing.JCheckBox goCondenseEvosCheckBox;
+    private javax.swing.JCheckBox goRemoveHappinessEvosCheckBox;
     private javax.swing.JCheckBox goRemoveTradeEvosCheckBox;
     private javax.swing.JCheckBox goUpdateMovesCheckBox;
     private javax.swing.JCheckBox goUpdateMovesLegacyCheckBox;
@@ -4696,6 +4753,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox peForceChangeCB;
     private javax.swing.JRadioButton peRandomRB;
     private javax.swing.JCheckBox peSameTypeCB;
+    private javax.swing.JCheckBox peSimilarStrengthBstCB;
     private javax.swing.JCheckBox peSimilarStrengthCB;
     private javax.swing.JCheckBox peThreeStagesCB;
     private javax.swing.JRadioButton peUnchangedRB;

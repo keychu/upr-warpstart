@@ -593,7 +593,7 @@
                               <Component id="pbsChangesUnchangedRB" min="-2" max="-2" attributes="0"/>
                               <Component id="pbsChangesRandomRB" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="66" max="32767" attributes="0"/>
+                          <EmptySpace pref="3" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="pbsStandardEXPCurvesCB" min="-2" max="-2" attributes="0"/>
                               <Component id="pbsFollowEvolutionsCB" min="-2" max="-2" attributes="0"/>
@@ -884,16 +884,23 @@
                           <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="peForceChangeCB" min="-2" max="-2" attributes="0"/>
-                              <Component id="peThreeStagesCB" min="-2" max="-2" attributes="0"/>
                               <Group type="102" alignment="1" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="peSimilarStrengthCB" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="peSimilarStrengthCB" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="peSimilarStrengthBstCB" min="-2" max="-2" attributes="0"/>
+                                      </Group>
                                       <Component id="peSameTypeCB" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="peThreeStagesCB" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="goCondenseEvosCheckBox" min="-2" max="-2" attributes="0"/>
-                                      <Component id="goRemoveTradeEvosCheckBox" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="1" groupAlignment="0" attributes="0">
+                                          <Component id="goCondenseEvosCheckBox" min="-2" max="-2" attributes="0"/>
+                                          <Component id="goRemoveTradeEvosCheckBox" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="goRemoveHappinessEvosCheckBox" alignment="1" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -909,18 +916,22 @@
                               <Component id="peUnchangedRB" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="peSimilarStrengthCB" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="goRemoveTradeEvosCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="peSimilarStrengthBstCB" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="peRandomRB" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="peSameTypeCB" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="goCondenseEvosCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="peRandomRB" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="peThreeStagesCB" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="peThreeStagesCB" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="goRemoveHappinessEvosCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="peForceChangeCB" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="31" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -968,6 +979,9 @@
                       <ResourceString bundle="com/dabomstew/pkrandom/gui/Bundle.properties" key="RandomizerGUI.peSimilarStrengthCB.toolTipText" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="peSimilarStrengthCBActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="peSameTypeCB">
                   <Properties>
@@ -1022,6 +1036,25 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="goCondenseEvosCheckBoxActionPerformed"/>
                   </Events>
                 </Component>
+                <Component class="javax.swing.JCheckBox" name="goRemoveHappinessEvosCheckBox">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="com/dabomstew/pkrandom/gui/Bundle.properties" key="RandomizerGUI.goRemoveHappinessEvosCheckBox.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="peSimilarStrengthBstCB">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="com/dabomstew/pkrandom/gui/Bundle.properties" key="RandomizerGUI.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="com/dabomstew/pkrandom/gui/Bundle.properties" key="RandomizerGUI.toolTipText" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="name" type="java.lang.String" value="" noResource="true"/>
+                  </Properties>
+                </Component>
               </SubComponents>
             </Container>
           </SubComponents>
@@ -1060,7 +1093,7 @@
                       <Component id="staticPokemonPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="inGameTradesPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="28" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -2883,7 +2916,7 @@
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="mtMovesPanel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="18" max="32767" attributes="0"/>
+                                  <EmptySpace max="32767" attributes="0"/>
                                   <Component id="mtCompatPanel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                               </Group>

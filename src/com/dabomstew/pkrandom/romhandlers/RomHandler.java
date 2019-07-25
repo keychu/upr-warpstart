@@ -210,6 +210,8 @@ public interface RomHandler {
 
     public List<Integer> getMovesBannedFromLevelup();
 
+    public void removeBrokenMoves();
+
     public void randomizeMovesLearnt(boolean typeThemed, boolean noBroken, boolean forceFourStartingMoves,
             double goodDamagingProbability);
 
@@ -390,9 +392,13 @@ public interface RomHandler {
 
     public void removeTradeEvolutions(boolean changeMoveEvos);
 
+    public void removeHappinessEvolutions();
+
+    public void removeHappinessEvolutionsGeneric(Pokemon[] pokes, String[] itemNames, int sunStoneIndex, int moonStoneIndex);
+
     public void condenseLevelEvolutions(int maxLevel, int maxIntermediateLevel);
 
-    public void randomizeEvolutions(boolean similarStrength, boolean sameType, boolean limitToThreeStages,
+    public void randomizeEvolutions(boolean similarStrength, boolean similarStrengthBST, boolean sameType, boolean limitToThreeStages,
             boolean forceChange);
 
     // stats stuff

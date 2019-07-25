@@ -195,7 +195,7 @@ public class Randomizer {
         // Random Evos
         // Applied after type to pick new evos based on new types.
         if (settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM) {
-            romHandler.randomizeEvolutions(settings.isEvosSimilarStrength(), settings.isEvosSameTyping(),
+            romHandler.randomizeEvolutions(settings.isEvosSimilarStrength(), settings.isEvosSimilarStrengthBST(), settings.isEvosSameTyping(),
                     settings.isEvosMaxThreeStages(), settings.isEvosForceChange());
 
             log.println("--Randomized Evolutions--");
@@ -223,6 +223,11 @@ public class Randomizer {
         // Trade evolutions removal
         if (settings.isChangeImpossibleEvolutions()) {
             romHandler.removeTradeEvolutions(!(settings.getMovesetsMod() == Settings.MovesetsMod.UNCHANGED));
+        }
+
+        //Remove happiness evolutions
+        if(settings.isChangeHappinessEvolutions()) {
+            romHandler.removeHappinessEvolutions();
         }
 
         // Easier evolutions
@@ -255,7 +260,31 @@ public class Randomizer {
 
         // Show the new movesets if applicable
         if (settings.getMovesetsMod() == Settings.MovesetsMod.UNCHANGED) {
-            log.println("Pokemon Movesets: Unchanged." + NEWLINE);
+            if (settings.doBlockBrokenMoves()) {
+                log.print("Pokemon Movesets: Removed Game-Breaking Moves (");
+
+                List<Integer> gameBreakingMoves = romHandler.getGameBreakingMoves();
+                int numberPrinted = 0;
+
+                for (Move move : moves) {
+                    if (move == null) {
+                        continue;
+                    }
+
+                    if (gameBreakingMoves.contains(move.number)) {
+                        numberPrinted++;
+                        log.print(move.name);
+
+                        if (numberPrinted < gameBreakingMoves.size()) {
+                            log.print(", ");
+                        }
+                    }
+                }
+
+                log.println(")" + NEWLINE);
+            } else {
+                log.println("Pokemon Movesets: Unchanged." + NEWLINE);
+            }
         } else if (settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY) {
             log.println("Pokemon Movesets: Metronome Only." + NEWLINE);
         } else {

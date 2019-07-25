@@ -1397,6 +1397,11 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
     }
 
     @Override
+    public void removeHappinessEvolutions() {
+        removeHappinessEvolutionsGeneric(pokes, itemNames, Gen2Constants.sunStoneIndex, Gen2Constants.moonStoneIndex);
+    }
+
+    @Override
     public boolean canChangeTrainerText() {
         return romEntry.getValue("CanChangeTrainerText") > 0;
     }

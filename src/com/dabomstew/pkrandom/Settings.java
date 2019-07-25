@@ -30,11 +30,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.zip.CRC32;
-
-import javax.xml.bind.DatatypeConverter;
 
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
@@ -58,6 +57,7 @@ public class Settings {
     private int currentMiscTweaks;
 
     private boolean changeImpossibleEvolutions;
+    private boolean changeHappinessEvolutions;
     private boolean makeEvolutionsEasier;
     private boolean raceMode;
     private boolean blockBrokenMoves;
@@ -107,6 +107,7 @@ public class Settings {
 
     private EvolutionsMod evolutionsMod = EvolutionsMod.UNCHANGED;
     private boolean evosSimilarStrength;
+    private boolean evosSimilarStrengthBST;
     private boolean evosSameTyping;
     private boolean evosMaxThreeStages;
     private boolean evosForceChange;
@@ -384,6 +385,13 @@ public class Settings {
         // @ 35 trainer pokemon level modifier
         out.write((trainersLevelModified ? 0x80 : 0) | (trainersLevelModifier+50));
 
+        // @ 36 happiness evos (ADDED)
+        out.write(makeByteSelected(changeHappinessEvolutions));
+
+        // @ 37 happiness evos (ADDED)
+        out.write(makeByteSelected(evosSimilarStrengthBST));
+
+        // --- ROM INFO AND SETTINGS FILE CHECKSUM ONLY PAST THIS POINT ---
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
             out.write(romName.length);
@@ -404,11 +412,11 @@ public class Settings {
         } catch (IOException e) {
         }
 
-        return DatatypeConverter.printBase64Binary(out.toByteArray());
+        return Utils.bytesToBase64(out.toByteArray());
     }
 
     public static Settings fromString(String settingsString) throws UnsupportedEncodingException {
-        byte[] data = DatatypeConverter.parseBase64Binary(settingsString);
+        byte[] data = Utils.base64ToBytes(settingsString);
         checkChecksum(data);
 
         Settings settings = new Settings();
@@ -579,6 +587,9 @@ public class Settings {
 
         settings.setTrainersLevelModified(restoreState(data[35], 7));
         settings.setTrainersLevelModifier((data[35] & 0x7F) - 50);
+
+        settings.setChangeHappinessEvolutions(restoreState(data[36], 0));
+        settings.setEvosSimilarStrengthBST(restoreState(data[37], 0));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -775,8 +786,17 @@ public class Settings {
         return changeImpossibleEvolutions;
     }
 
+    public boolean isChangeHappinessEvolutions() {
+        return changeHappinessEvolutions;
+    }
+
     public Settings setChangeImpossibleEvolutions(boolean changeImpossibleEvolutions) {
         this.changeImpossibleEvolutions = changeImpossibleEvolutions;
+        return this;
+    }
+
+    public Settings setChangeHappinessEvolutions(boolean changeHappinessEvolutions) {
+        this.changeHappinessEvolutions = changeHappinessEvolutions;
         return this;
     }
 
@@ -975,8 +995,17 @@ public class Settings {
         return evosSimilarStrength;
     }
 
+    public boolean isEvosSimilarStrengthBST() {
+        return evosSimilarStrengthBST;
+    }
+
     public Settings setEvosSimilarStrength(boolean evosSimilarStrength) {
         this.evosSimilarStrength = evosSimilarStrength;
+        return this;
+    }
+
+    public Settings setEvosSimilarStrengthBST(boolean evosSimilarStrengthBST) {
+        this.evosSimilarStrengthBST = evosSimilarStrengthBST;
         return this;
     }
 
@@ -1581,7 +1610,7 @@ public class Settings {
     private static void checkChecksum(byte[] data) {
         // Check the checksum
         ByteBuffer buf = ByteBuffer.allocate(4).put(data, data.length - 8, 4);
-        buf.rewind();
+        ((Buffer)buf).rewind();
         int crc = buf.getInt();
 
         CRC32 checksum = new CRC32();

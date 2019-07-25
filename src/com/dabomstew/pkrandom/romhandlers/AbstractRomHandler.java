@@ -28,21 +28,7 @@ package com.dabomstew.pkrandom.romhandlers;
 /*----------------------------------------------------------------------------*/
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import com.dabomstew.pkrandom.CustomNamesSet;
 import com.dabomstew.pkrandom.MiscTweak;
@@ -1627,6 +1613,19 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public void removeBrokenMoves() {
+        Map<Pokemon, List<MoveLearnt>> movesets = this.getMovesLearnt();
+        Set<Integer> allBanned = new HashSet<Integer>(this.getGameBreakingMoves());
+
+        for (List<MoveLearnt> movesLearnt : movesets.values()) {
+            movesLearnt.removeIf(move -> allBanned.contains(move.move));
+        }
+
+        // Done, save
+        this.setMovesLearnt(movesets);
+    }
+
+    @Override
     public void randomizeMovesLearnt(boolean typeThemed, boolean noBroken, boolean forceFourStartingMoves,
             double goodDamagingProbability) {
         // Get current sets
@@ -2774,8 +2773,16 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public void randomizeEvolutions(boolean similarStrength, boolean sameType, boolean limitToThreeStages,
-            boolean forceChange) {
+    public void randomizeEvolutions(boolean similarStrength, boolean similarStrengthBST, boolean sameType, 
+        boolean limitToThreeStages, boolean forceChange) {
+        
+        if(similarStrengthBST){ //ADDED
+            log("DEBUG: Similar Strength BST is active.");
+        }
+        else{
+            log("DEBUG: Similar Strength BST is not active.");
+        }
+        
         checkPokemonRestrictions();
         List<Pokemon> pokemonPool = new ArrayList<Pokemon>(mainPokemonList);
         int stageLimit = limitToThreeStages ? 3 : 10;
@@ -2910,7 +2917,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                         // Foregone conclusion.
                         picked = replacements.get(0);
                     } else if (similarStrength) {
-                        picked = pickEvoPowerLvlReplacement(replacements, ev.to);
+                        picked = pickEvoPowerLvlReplacement(similarStrengthBST, replacements, ev.to);
                     } else {
                         picked = replacements.get(this.random.nextInt(replacements.size()));
                     }
@@ -3008,12 +3015,18 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
     }
 
-    private Pokemon pickEvoPowerLvlReplacement(List<Pokemon> pokemonPool, Pokemon current) {
+    //NOTE
+    private Pokemon pickEvoPowerLvlReplacement(boolean similarStrengthBST, List<Pokemon> pokemonPool, Pokemon current) {
         // start with within 10% and add 5% either direction till we find
         // something
         int currentBST = current.bstForPowerLevels();
         int minTarget = currentBST - currentBST / 10;
         int maxTarget = currentBST + currentBST / 10;
+
+        if(similarStrengthBST){ //ADDED
+            minTarget = currentBST - currentBST / 20;
+        }
+
         List<Pokemon> canPick = new ArrayList<Pokemon>();
         int expandRounds = 0;
         while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
@@ -3022,8 +3035,14 @@ public abstract class AbstractRomHandler implements RomHandler {
                     canPick.add(pk);
                 }
             }
+
             minTarget -= currentBST / 20;
             maxTarget += currentBST / 20;
+
+            if(similarStrengthBST){ //ADDED
+                minTarget -= currentBST / 40;
+            }
+
             expandRounds++;
         }
         return canPick.get(this.random.nextInt(canPick.size()));
@@ -3741,5 +3760,54 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void applyMiscTweak(MiscTweak tweak) {
         // default: do nothing
+    }
+
+    //Added in WarpStart. Built to work for gens 2-5, shouldn't need to override this one.
+    @Override
+    public void removeHappinessEvolutionsGeneric(Pokemon[] pokes, String[] itemNames, int sunStoneIndex, int moonStoneIndex) {
+        log("--Removing Happiness Evolutions--");
+        List<String> babyPokemon = Arrays.asList("AZURILL", "CLEFFA", "IGGLYBUFF",
+            "PICHU", "TOGEPI", "BUDEW", "CHINGLING", "MUNCHLAX", "RIOLU");
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS || 
+                        evo.type == EvolutionType.HAPPINESS_DAY || 
+                        evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        //Baby Pokemon
+                        //Has priority over day/night evo (applies to Budew, Riolu, and Chingling)
+                        if(babyPokemon.stream().anyMatch(str -> str.trim().equals(pkmn.name.toUpperCase()))){
+                            evo.type = EvolutionType.LEVEL;
+                            evo.extraInfo = 16;
+                            logEvoChangeLevel(evo.from.name, evo.to.name, evo.extraInfo);
+                        }
+                        //Eevee (Espeon)
+                        else if (evo.type == EvolutionType.HAPPINESS_DAY) {
+                            // happiness day change to Sun Stone
+                            evo.type = EvolutionType.STONE;
+                            evo.extraInfo = sunStoneIndex;
+                            logEvoChangeStone(evo.from.name, evo.to.name, itemNames[sunStoneIndex]);
+                        }
+                        //Eevee (Umbreon)
+                        else if (evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                            // happiness night change to Moon Stone
+                            evo.type = EvolutionType.STONE;
+                            evo.extraInfo = moonStoneIndex;
+                            logEvoChangeStone(evo.from.name, evo.to.name, itemNames[moonStoneIndex]);
+                        }
+                        //Chansey, Golbat, Buneary, Swadloon, Woobat
+                        else{
+                            //TEST: What happens to Eevee in LG/FR? Does the randomizer give them
+                            //  a different evolution type in these games?
+                            evo.type = EvolutionType.LEVEL;
+                            evo.extraInfo = 30;
+                            logEvoChangeLevel(evo.from.name, evo.to.name, evo.extraInfo);
+                        }
+                    }
+                }
+            }
+        }
+        logBlankLine();
     }
 }

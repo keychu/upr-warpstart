@@ -2102,6 +2102,11 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    public void removeHappinessEvolutions() {
+        removeHappinessEvolutionsGeneric(pokes, itemNames.toArray(new String[itemNames.size()]), Gen4Constants.sunStoneIndex, Gen4Constants.moonStoneIndex);
+    }
+
+    @Override
     public boolean canChangeTrainerText() {
         return true;
     }

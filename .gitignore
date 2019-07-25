@@ -34,3 +34,6 @@ manifest.mf
 *.dsv
 build_eclipse.xml
 /customnames.rncn
+
+.directory
+/dist/

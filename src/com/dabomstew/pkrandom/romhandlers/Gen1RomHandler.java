@@ -1423,6 +1423,11 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         logBlankLine();
     }
 
+    @Override
+    public void removeHappinessEvolutions() {
+        //Do nothing
+    }
+
     private List<String> getTrainerClassesForText() {
         int[] offsets = romEntry.arrayEntries.get("TrainerClassNamesOffsets");
         List<String> tcNames = new ArrayList<String>();

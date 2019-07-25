@@ -67,6 +67,9 @@ public class Gen4Constants {
 
     public static final int waterStoneIndex = 84, leafStoneIndex = 85, dawnStoneIndex = 109;
 
+    //Added for WarpStart
+    public static final int sunStoneIndex = 80, moonStoneIndex = 81;
+
     public static final int highestAbilityIndex = 123;
 
     public static final int dpptSetVarScript = 0x28, hgssSetVarScript = 0x29;

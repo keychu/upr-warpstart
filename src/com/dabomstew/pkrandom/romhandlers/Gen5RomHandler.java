@@ -1816,6 +1816,11 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    public void removeHappinessEvolutions() {
+        removeHappinessEvolutionsGeneric(pokes, itemNames.toArray(new String[itemNames.size()]), Gen5Constants.sunStoneIndex, Gen5Constants.moonStoneIndex);
+    }
+
+    @Override
     public boolean canChangeTrainerText() {
         return true;
     }

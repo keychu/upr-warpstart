@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RandomizerGUI<universal-pokemon-randomizer (2)>",
+            "request": "launch",
+            "mainClass": "com.dabomstew.pkrandom.gui.RandomizerGUI",
+            "projectName": "universal-pokemon-randomizer (2)"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BLZCoder<universal-pokemon-randomizer (2)>",
+            "request": "launch",
+            "mainClass": "cuecompressors.BLZCoder",
+            "projectName": "universal-pokemon-randomizer (2)"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RandomizerGUI<universal-pokemon-randomizer>",
+            "request": "launch",
+            "mainClass": "com.dabomstew.pkrandom.gui.RandomizerGUI",
+            "projectName": "universal-pokemon-randomizer"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BLZCoder<universal-pokemon-randomizer>",
+            "request": "launch",
+            "mainClass": "cuecompressors.BLZCoder",
+            "projectName": "universal-pokemon-randomizer"
+        }
+    ]
+}
