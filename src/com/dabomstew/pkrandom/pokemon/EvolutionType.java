@@ -46,18 +46,32 @@ public enum EvolutionType {
     }
 
     private EvolutionType(int... indexes) {
+        //Write exceptions here for NewWarp
+
         this.indexNumbers = indexes;
     }
 
     public int toIndex(int generation) {
+        //Write exceptions here for NewWarp
+
         return indexNumbers[generation - 1];
     }
 
     public static EvolutionType fromIndex(int generation, int index) {
-        return reverseIndexes[generation - 1][index];
+        //Write exceptions here for NewWarp
+
+        //TEMP - i just want to see if this will work for now
+        if(index <= 15)
+            return reverseIndexes[generation - 1][index];
+        else
+            return HAPPINESS;    
+        
+        //return reverseIndexes[generation - 1][index];
     }
 
     public boolean usesLevel() {
+        //Write exceptions here for NewWarp
+
         return (this == LEVEL) || (this == LEVEL_ATTACK_HIGHER) || (this == LEVEL_DEFENSE_HIGHER)
                 || (this == LEVEL_ATK_DEF_SAME) || (this == LEVEL_LOW_PV) || (this == LEVEL_HIGH_PV)
                 || (this == LEVEL_CREATE_EXTRA) || (this == LEVEL_IS_EXTRA) || (this == LEVEL_MALE_ONLY)

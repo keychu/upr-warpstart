@@ -81,6 +81,7 @@ import com.dabomstew.pkrandom.romhandlers.AbstractDSRomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen1RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen2RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen3RomHandler;
+import com.dabomstew.pkrandom.romhandlers.Gen3NewWarpRomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen4RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen5RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
@@ -168,7 +169,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
         bundle = java.util.ResourceBundle.getBundle("com/dabomstew/pkrandom/gui/Bundle"); // NOI18N
         testForRequiredConfigs();
         checkHandlers = new RomHandler.Factory[] { new Gen1RomHandler.Factory(), new Gen2RomHandler.Factory(),
-                new Gen3RomHandler.Factory(), new Gen4RomHandler.Factory(), new Gen5RomHandler.Factory() };
+                new Gen3RomHandler.Factory(), new Gen3NewWarpRomHandler.Factory(), new Gen4RomHandler.Factory(), new Gen5RomHandler.Factory() };
         autoUpdateEnabled = true;
         haveCheckedCustomNames = false;
         useScrollPaneMode = !onWindowsLAF;
