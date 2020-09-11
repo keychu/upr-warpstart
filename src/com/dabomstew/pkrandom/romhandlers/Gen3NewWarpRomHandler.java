@@ -64,6 +64,7 @@ import com.dabomstew.pkrandom.pokemon.MoveLearnt;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Trainer;
 import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
+import com.dabomstew.pkrandom.pokemon.Type; //NEWWARP CHANGED
 
 import compressors.DSDecmp;
 
@@ -417,7 +418,7 @@ public class Gen3NewWarpRomHandler extends AbstractGBRomHandler {
         // Pokemon count stuff, needs to be available first
         //List<Integer> pokedexOrderPrefixes = findMultiple(rom, Gen3NewWarpConstants.pokedexOrderPointerPrefix);
         //romEntry.entries.put("PokedexOrder", readPointer(pokedexOrderPrefixes.get(1) + 16));
-        romEntry.entries.put("PokedexOrder", 0x2035CC); //NEWWARP CHANGED: test - I think I manually found it //2035CC (earlier attempt: 20337A)
+        romEntry.entries.put("PokedexOrder", 0x203428); //NEWWARP CHANGED: test - I think I manually found it (original update: 0x2035cc)
 
         // Pokemon names offset
         if (romEntry.romType == Gen3NewWarpConstants.RomType_Ruby || romEntry.romType == Gen3NewWarpConstants.RomType_Sapp) {
@@ -715,7 +716,7 @@ public class Gen3NewWarpRomHandler extends AbstractGBRomHandler {
         //Get updated offsets for the four hard-to-track offsets.     
         int pokemonMovesetsOffset = getOffsetForMovesetsAndDescriptions(parseRIInt("0x207BC8"), RubyPrefixes.PokemonMovesets);
         int pokemonItemDataOffset = RomFunctions.searchForFirst(rom, parseRIInt("0x3C5564"), stringToByteArray(RubyPrefixes.ItemData));
-        int pokemonMoveDescriptionsOffset = getOffsetForMovesetsAndDescriptions(parseRIInt("0x3E7850"), "3E08"); //NEWWARP CHANGED - this is an array of pointers, those pointers changed
+        int pokemonMoveDescriptionsOffset = getOffsetForMovesetsAndDescriptions(parseRIInt("0x3E7850"), "3E08"); //NEWWARP CHANGED: Manaully found. This is an array of pointers, those pointers changed //3E98F8 (original update)
         int pokemonPCPotionOffset = RomFunctions.searchForFirst(rom, parseRIInt("0x4062F0"), stringToByteArray(RubyPrefixes.PCPotionOffset));
         
         //Force the randomizer to find all offsets dynamically
@@ -749,6 +750,9 @@ public class Gen3NewWarpRomHandler extends AbstractGBRomHandler {
         //romEntry.entries.put("StaticPokemonSupport", 0);
         //romEntry.staticPokemon.clear();
         
+        //Original free space location now has data.
+        romEntry.entries.replace("FreeSpace", 0x1200000);
+
         //Enable static Pokemon
         String[][] searchingFor =
         {
@@ -963,6 +967,16 @@ public class Gen3NewWarpRomHandler extends AbstractGBRomHandler {
             saveBasicPokeStats(pk, offs2 + i * Gen3NewWarpConstants.baseStatsEntrySize);
         }
         writeEvolutions();
+    }
+
+    @Override
+    public boolean typeInGame(Type type) {
+        if(type == Type.FAIRY){
+            return true;
+        }
+        else{
+            return type.isHackOnly == false;
+        }
     }
 
     private void loadMoves() {

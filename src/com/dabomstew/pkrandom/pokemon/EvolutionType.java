@@ -16,24 +16,33 @@ public enum EvolutionType {
     LEVEL_HIGH_PV(-1, -1, 12, 12, 13),
     LEVEL_CREATE_EXTRA(-1, -1, 13, 13, 14),
     LEVEL_IS_EXTRA(-1, -1, 14, 14, 15),
-    LEVEL_HIGH_BEAUTY(-1, -1, 15, 15, 16),
-    STONE_MALE_ONLY(-1, -1, -1, 16, 17),
-    STONE_FEMALE_ONLY(-1, -1, -1, 17, 18),
-    LEVEL_ITEM_DAY(-1, -1, -1, 18, 19),
-    LEVEL_ITEM_NIGHT(-1, -1, -1, 19, 20),
-    LEVEL_WITH_MOVE(-1, -1, -1, 20, 21),
-    LEVEL_WITH_OTHER(-1, -1, -1, 21, 22),
-    LEVEL_MALE_ONLY(-1, -1, -1, 22, 23),
-    LEVEL_FEMALE_ONLY(-1, -1, -1, 23, 24),
-    LEVEL_ELECTRIFIED_AREA(-1, -1, -1, 24, 25),
-    LEVEL_MOSS_ROCK(-1, -1, -1, 25, 26),
-    LEVEL_ICY_ROCK(-1, -1, -1, 26, 27),
+    LEVEL_HIGH_BEAUTY(-1, -1, 15, 15, 16), //last in Ruby proper
+    STONE_MALE_ONLY(-1, -1, 0x17, 16, 17), //0x17
+    STONE_FEMALE_ONLY(-1, -1, 0x18, 17, 18), //0x18
+    LEVEL_ITEM_DAY(-1, -1, 0x14, 18, 19), //0x14
+    LEVEL_ITEM_NIGHT(-1, -1, 0x15, 19, 20), //0x15
+    LEVEL_WITH_MOVE(-1, -1, 0x12, 20, 21), //0x12
+    LEVEL_WITH_OTHER(-1, -1, -1, 21, 22), //none
+    LEVEL_MALE_ONLY(-1, -1, 0x10, 22, 23), //0x10
+    LEVEL_FEMALE_ONLY(-1, -1, 0x11, 23, 24), //0x11
+    LEVEL_ELECTRIFIED_AREA(-1, -1, -1, 24, 25), //0x13... (none)
+    LEVEL_MOSS_ROCK(-1, -1, -1, 25, 26), //0x13... (none)
+    LEVEL_ICY_ROCK(-1, -1, -1, 26, 27), //0x13... (none)
     TRADE_SPECIAL(-1, -1, -1, -1, 7),
+    ////////////////////
+    LEVEL_MAP(-1, -1, 0x13, -1, -1), //0x13
+    LEVEL_WITH_PARTY_SPECIES(-1, -1, 0x16, -1, -1),   //0x16
+    LEVEL_WITH_PARTY_TYPE(-1, -1, 0x19, -1, -1),  //0x19
+    LEVEL_RAIN(-1, -1, 0x1A, -1, -1), //0x1A
+    LEVEL_WITH_MOVE_TYPE(-1, -1, 0x1B, -1, -1), //0x1B
+    LEVEL_RARE_CANDY(-1, -1, 0x1C, -1, -1), //0x1C
+    LEVEL_DAY(-1, -1, 0x1D, -1, -1), //0x1D
+    LEVEL_NIGHT(-1, -1, 0x1E, -1, -1), //0x1E
     NONE(-1, -1, -1, -1, -1);
     /* @formatter:on */
 
     private int[] indexNumbers;
-    private static EvolutionType[][] reverseIndexes = new EvolutionType[5][30];
+    private static EvolutionType[][] reverseIndexes = new EvolutionType[5][36]; //NEWWARP CHANGED
 
     static {
         for (EvolutionType et : EvolutionType.values()) {
@@ -46,35 +55,23 @@ public enum EvolutionType {
     }
 
     private EvolutionType(int... indexes) {
-        //Write exceptions here for NewWarp
-
         this.indexNumbers = indexes;
     }
 
     public int toIndex(int generation) {
-        //Write exceptions here for NewWarp
-
         return indexNumbers[generation - 1];
     }
 
     public static EvolutionType fromIndex(int generation, int index) {
-        //Write exceptions here for NewWarp
-
-        //TEMP - i just want to see if this will work for now
-        if(index <= 15)
-            return reverseIndexes[generation - 1][index];
-        else
-            return HAPPINESS;    
-        
-        //return reverseIndexes[generation - 1][index];
+        return reverseIndexes[generation - 1][index];
     }
 
     public boolean usesLevel() {
-        //Write exceptions here for NewWarp
-
         return (this == LEVEL) || (this == LEVEL_ATTACK_HIGHER) || (this == LEVEL_DEFENSE_HIGHER)
                 || (this == LEVEL_ATK_DEF_SAME) || (this == LEVEL_LOW_PV) || (this == LEVEL_HIGH_PV)
                 || (this == LEVEL_CREATE_EXTRA) || (this == LEVEL_IS_EXTRA) || (this == LEVEL_MALE_ONLY)
-                || (this == LEVEL_FEMALE_ONLY);
+                || (this == LEVEL_FEMALE_ONLY) || (this == LEVEL_MAP) || (this == LEVEL_WITH_PARTY_SPECIES)
+                || (this == LEVEL_WITH_PARTY_TYPE) || (this == LEVEL_RAIN) || (this == LEVEL_WITH_MOVE_TYPE)
+                || (this == LEVEL_RARE_CANDY) || (this == LEVEL_DAY) || (this == LEVEL_NIGHT);
     }
 }
