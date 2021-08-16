@@ -418,7 +418,24 @@ public class Gen3NewWarpRomHandler extends AbstractGBRomHandler {
         // Pokemon count stuff, needs to be available first
         //List<Integer> pokedexOrderPrefixes = findMultiple(rom, Gen3NewWarpConstants.pokedexOrderPointerPrefix);
         //romEntry.entries.put("PokedexOrder", readPointer(pokedexOrderPrefixes.get(1) + 16));
-        romEntry.entries.put("PokedexOrder", 0x203428); //NEWWARP CHANGED: test - I think I manually found it (original update: 0x2035cc)
+
+        //This one is a pain. If this is wrong, it will mess up the internal ordering in (at least) the randomizer,
+        //  causing legendary status to be assigned to the wrong Pokemon later on. (I'm amazed that I've not noticed
+        //  more serious side-effects than that.)
+        //I believe this is supposed to start with a pattern of "01 00 02 00 03 00 04 00 05 00" and so on for a good while.
+        //  (At least, it does in base Ruby.)
+        //Original offset for base Ruby (after being found via the readPointer function) is 0x1FC516.
+        //  If things seem to be out-of-wack, compare the data at the below offset in NewWarp with the data at
+        //  the original offset in base Ruby.
+
+        //Original method. Uses a manually-found hex address.
+        //romEntry.entries.put("PokedexOrder", 0x203444);
+        //test address 1: 0x2035cc
+        //test address 2 (appears to be wrong in testing): 0x203428
+
+        //New method - find using the aforementioned hex prefix. Return the second result, just like the original method.
+        List<Integer> pokedexOrderPrefixes = findMultiple(rom, "0100020003000400050006000700080009000A000B000C000D000E000F00100011001200130014001500");
+        romEntry.entries.put("PokedexOrder", pokedexOrderPrefixes.get(1));
 
         // Pokemon names offset
         if (romEntry.romType == Gen3NewWarpConstants.RomType_Ruby || romEntry.romType == Gen3NewWarpConstants.RomType_Sapp) {
